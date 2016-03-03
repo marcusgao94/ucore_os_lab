@@ -20,7 +20,15 @@
     5. 用dd命令生成img文件
 
 2.  <br>
-符合规范的硬盘主引导扇区，在sign.c可以看到，最后两个字分别为0x55和0xAA
+符合规范的硬盘主引导扇区，大小为512字节，最后两个字分别为0x55和0xAA
 
 - #练习2
+  
+1. <br>
+按照实验指导书lab1的附录B中的介绍，把tools/gdbinit改成
+"""
+target remote : 1234
+set architecture i8086
+"""
+运行
 
