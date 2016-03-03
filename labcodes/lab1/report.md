@@ -48,4 +48,14 @@
  证明断点设置正常
 
 3. <br>
-在上一步的基础上，输入`x /10i $pc`。看到gdb输出为
+ 在上一步的基础上，输入`x /10i $pc`。比较gdb的输出和bootasm.S和booblock.asm是一致的
+
+4. <br>
+ 由于代码中还没写好时钟中断的处理，因此先用labcodes_answer/lab1_result里的文件。
+ 将tools/gdbinit改成
+ ```
+ target remote : 1234
+ set architecture i8086
+ break bootmain
+ continue
+ ```
