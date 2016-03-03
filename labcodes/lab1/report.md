@@ -25,10 +25,25 @@
 - #练习2
   
 1. <br>
-按照实验指导书lab1的附录B中的介绍，把tools/gdbinit改成
-"""
+按照实验指导书lab1的附录B中的介绍，把tools/gdbinit改成  
+```
 target remote : 1234
 set architecture i8086
-"""
+```
 运行
+```
+make debug
+```
+qemu停在第一条指令出。用`x /10i $pc` 可以看到当前的指令。用`si(stepi)`指令可以看到单步执行的过程
+
+2. <br>
+接着在tools/gdbinit后面加上
+```
+b *0x7c00
+continue
+```
+可以看到gdb的提示信息
+> breakpoint at 0x7c00
+  
+证明断点设置正常
 
