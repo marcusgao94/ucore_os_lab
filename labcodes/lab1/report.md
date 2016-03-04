@@ -104,8 +104,11 @@ gdtdesc:
  orl $CR0_PE_ON, %eax
  movl %eax, %cr0
  ```
- 这段代码就是将%cr0的某一位置成1,开启保护模式。
+ 以上这段代码就是将%cr0的某一位置成1,开启保护模式。
  ``` 
  ljmp $PROT_MODE_CSEG, $protcseg
  ```
  长跳转指令开始保护模式
+
+- #练习4
+
