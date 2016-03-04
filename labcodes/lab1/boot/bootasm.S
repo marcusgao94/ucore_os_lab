@@ -32,7 +32,8 @@ seta20.1:
     jnz seta20.1
 
     movb $0xd1, %al                                 # 0xd1 -> port 0x64
-    outb %al, $0x64                                 # 0xd1 means: write data to 8042's P2 port
+    outb %al, $0x64                                 # 0xd1 means: next command will
+                                                                #  write data to 8042's P2 port
 
 seta20.2:
     inb $0x64, %al                                  # Wait for not busy(8042 input buffer empty).

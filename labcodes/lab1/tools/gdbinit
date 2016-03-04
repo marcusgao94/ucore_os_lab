@@ -1,5 +1,2 @@
 target remote :1234
 set architecture i8086
-b *0x7d11 
-continue
-
