@@ -23,7 +23,7 @@
 符合规范的硬盘主引导扇区，大小为512字节，最后两个字分别为0x55和0xAA
 
 - #练习2
-  
+
 1. <br>
  按照实验指导书lab1的附录B中的介绍，把tools/gdbinit改成  
  ```
@@ -61,6 +61,51 @@
  ```
 
 - #练习3
-  
+
 1. <br>
- 因为开机时在实模式，只支持20位的地址，开启A20后可以支持32位地址
+ 因为开机时在实模式，只支持20位的地址，开启A20后可以支持32位地址  
+ 开启A20的方法是如下这段代码
+ ```
+ seta20.1:
+    inb $0x64, %al                                  # Wait for not busy(8042 input buffer empty).
+    testb $0x2, %al
+    jnz seta20.1
+
+    movb $0xd1, %al                                 # 0xd1 -> port 0x64
+    outb %al, $0x64                                 # 0xd1 means: write data to 8042's P2 port
+
+seta20.2:
+    inb $0x64, %al                                  # Wait for not busy(8042 input buffer empty).
+    testb $0x2, %al
+    jnz seta20.2
+
+    movb $0xdf, %al                                 # 0xdf -> port 0x60
+    outb %al, $0x60                                 # 0xdf = 11011111, means set P2's A20 bit(the 1 bit) to 1
+ ```
+ 先把0xd1写入0x64端口，再把0xdf写入0x60端口
+
+2. <br>
+ 初始化GDT的代码是这段
+ ```
+ gdt:
+    SEG_NULLASM                                     # null seg
+    SEG_ASM(STA_X|STA_R, 0x0, 0xffffffff)           # code seg for bootloader and kernel
+    SEG_ASM(STA_W, 0x0, 0xffffffff)                 # data seg for bootloader and kernel
+
+gdtdesc:
+    .word 0x17                                      # sizeof(gdt) - 1
+    .long gdt                                       # address gdt
+ ```
+ `lgdt gdtdesc`就是载入全局描述符表
+
+3. <br>
+ ```
+ movl %cr0, %eax
+ orl $CR0_PE_ON, %eax
+ movl %eax, %cr0
+ ```
+ 这段代码就是将%cr0的某一位置成1,开启保护模式。
+ ``` 
+ ljmp $PROT_MODE_CSEG, $protcseg
+ ```
+ 长跳转指令开始保护模式
