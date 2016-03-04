@@ -156,3 +156,14 @@ ebp: 0x00007bc8	eip: 0x00100055	args: 0x00000000 0x00000000 0x00000000 0x0001009
 ebp: 0x00007bf8	eip: 0x00007d68	args: 0xc031fcfa 0xc08ed88e 0x64e4d08e 0xfa7502a
 ```
 最后一行ebp的值为0x7bf8。根据代码的内容，再下一个ebp就是0，也就是最开始的初始化的堆栈的位置（bootmain.S中将ebp设为0，然后call bootmain）。由此可见，这里最后一行就是bootmain所在处。 由于在call bootmain之前先将esp栈顶指针设置为了start所在的0x7c00，那么在call bootmain时先将返回地址压栈，再将old ebp压栈，相差了8个字节，所以当前的ebp应为0x7bf8。
+
+# 练习6
+1. <br>
+ 在mmu.h中可以看到gatedesc的定义，一共有64位，8个字节  
+ 低16位和高16位拼起来是中断处理代码的入口
+
+2. <br>
+ 见工程中
+
+3. <br>
+ 见工程中
