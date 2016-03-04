@@ -139,3 +139,25 @@ readsect(void *dst, uint32_t secno) {
   1. 读取ELF的头部，通过储存在头部的幻数判断ELF文件是否合法。
   2. 按照ELF文件头的描述表，调用readseg函数，将从1扇区开始的ELF文件载入内存的对应位置。
   3. 根据ELF头部储存的入口信息，找到内核的入口。
+
+
+- #练习5
+
+按照程序中已经给出的提出完成每一步即可。输出是：
+```
+ebp: 0x00007b08	eip: 0x001009a6	args: 0x00010094 0x00000000 0x00007b38 0x00100092 
+    kern/debug/kdebug.c:306: print_stackframe+21
+ebp: 0x00007b18	eip: 0x00100cac	args: 0x00000000 0x00000000 0x00000000 0x00007b88 
+    kern/debug/kmonitor.c:125: mon_backtrace+10
+ebp: 0x00007b38	eip: 0x00100092	args: 0x00000000 0x00007b60 0xffff0000 0x00007b64 
+    kern/init/init.c:48: grade_backtrace2+33
+ebp: 0x00007b58	eip: 0x001000bb	args: 0x00000000 0xffff0000 0x00007b84 0x00000029 
+    kern/init/init.c:53: grade_backtrace1+38
+ebp: 0x00007b78	eip: 0x001000d9	args: 0x00000000 0x00100000 0xffff0000 0x0000001d 
+    kern/init/init.c:58: grade_backtrace0+23
+ebp: 0x00007b98	eip: 0x001000fe	args: 0x001032fc 0x001032e0 0x0000130a 0x00000000 
+    kern/init/init.c:63: grade_backtrace+34
+ebp: 0x00007bc8	eip: 0x00100055	args: 0x00000000 0x00000000 0x00000000 0x00010094 
+    kern/init/init.c:28: kern_init+84
+ebp: 0x00007bf8	eip: 0x00007d68	args: 0xc031fcfa 0xc08ed88e 0x64e4d08e 0xfa7502a
+```
