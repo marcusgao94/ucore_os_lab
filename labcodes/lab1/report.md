@@ -112,3 +112,30 @@ gdtdesc:
 
 - #练习4
 
+1. <br>
+ 用readsec函数读取磁盘
+ ```
+ static void
+readsect(void *dst, uint32_t secno) {
+    // wait for disk to be ready
+    waitdisk();
+
+    outb(0x1F2, 1);                         // count = 1
+    outb(0x1F3, secno & 0xFF);
+    outb(0x1F4, (secno >> 8) & 0xFF);
+    outb(0x1F5, (secno >> 16) & 0xFF);
+    outb(0x1F6, ((secno >> 24) & 0xF) | 0xE0);
+    outb(0x1F7, 0x20);                      // cmd 0x20 - read sectors
+
+    // wait for disk to be ready
+    waitdisk();
+
+    // read a sector
+    insl(0x1F0, dst, SECTSIZE / 4);
+}
+ ```
+
+2. <br>
+  1. 读取ELF的头部，通过储存在头部的幻数判断ELF文件是否合法。
+  2. 按照ELF文件头的描述表，调用readseg函数，将从1扇区开始的ELF文件载入内存的对应位置。
+  3. 根据ELF头部储存的入口信息，找到内核的入口。
