@@ -167,3 +167,63 @@ ebp: 0x00007bf8	eip: 0x00007d68	args: 0xc031fcfa 0xc08ed88e 0x64e4d08e 0xfa7502a
 
 3. <br>
  见工程中
+
+# Challenge 
+1. 在trap/trap.c的trap_dispatch函数中对段寄存器做修改。  
+    对T_SWITCH_TOU
+    ```
+    tf->tf_cs = USER_CS;
+    tf->tf_ds = USER_DS;
+    tf->tf_es = USER_DS;
+    tf->tf_ss = USER_DS;
+    ```
+    对T_SWITCH_TOK
+    ```
+    tf->tf_cs = KERNEL_CS;
+    tf->tf_ds = KERNEL_DStf->tf_es = KERNEL_DS;
+    ```
+
+2. 修改权限  
+    对T_SWITCH_TOU
+    ```
+    tf->tf_eflags |= FL_IOPL_MASK;
+    ```
+    对T_SWITCH_TOK
+    ```
+    tf->tf_eflags &= ~FL_IOPL_MASK;
+    ```
+
+3. 设置正确的iret时的栈位置  
+    对T_SWITCH_TOU
+    ```
+    *((uint32_t *)tf - 1) = (uint32_t)&switchk2u;
+    ```
+    对T_SWITCH_TOK
+    ```
+    struct trapframe *switchu2k = (struct trapframe *)(tf->tf_esp - (sizeof(struct trapframe) - 8));
+    memmove(switchu2k, tf, sizeof(struct trapframe) - 8);
+    *((uint32_t *)tf - 1) = (uint32_t)switchu2k;
+    ```
+
+4. 在kern/init/init.c的lab1_switch_to_user函数中  
+    修改正确的栈地址
+    ```
+    asm volatile(
+            "sub $0x8, %%esp \n"
+            "int %0 \n"
+            "movl %%ebp, %%esp"
+            :
+            : "i"(T_SWITCH_TOU)
+    );
+    ```
+
+5. 在lab1_switch_to_kernel函数中  
+    修改正确的栈地址
+    ```
+    asm volatile(
+            "int %0 \n"
+            "movl %%ebp, %%esp \n"
+            :
+            : "i"(T_SWITCH_TOK)
+    );
+    ```
