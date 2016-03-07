@@ -171,8 +171,26 @@ trap_dispatch(struct trapframe *tf) {
         break;
     //LAB1 CHALLENGE 1 : YOUR CODE you should modify below codes.
     case T_SWITCH_TOU:
+    	if (tf->tf_cs != USER_CS) {
+    		tf->tf_cs = USER_CS;
+    		    	tf->tf_ds = USER_DS;
+    		    	tf->tf_es = USER_DS;
+    		    	tf->tf_ss = USER_DS;
+    		    	tf->tf_esp = (uint32_t)tf + sizeof(struct trapframe) - 8;
+    		    	tf->tf_eflags |= FL_IOPL_MASK;
+    		    	*((uint32_t *)tf - 1) = (uint32_t)tf;
+    	}
+    	break;
     case T_SWITCH_TOK:
-        panic("T_SWITCH_** ??\n");
+    	if (tf->tf_cs != KERNEL_CS) {
+    		tf->tf_cs = KERNEL_CS;
+    		    	tf->tf_ds = KERNEL_DS;
+    		    	tf->tf_es = KERNEL_DS;
+    		    	tf->tf_eflags &= ~FL_IOPL_MASK;
+    		    	struct trapframe *switchu2k = (struct trapframe *)(tf->tf_esp - (sizeof(struct trapframe) - 8));
+    		    	memmove(switchu2k, tf, sizeof(struct trapframe) - 8);
+    		    	*((uint32_t *)tf - 1) = (uint32_t)switchu2k;
+    	}
         break;
     case IRQ_OFFSET + IRQ_IDE1:
     case IRQ_OFFSET + IRQ_IDE2:
