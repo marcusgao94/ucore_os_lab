@@ -70,7 +70,7 @@ _fifo_swap_out_victim(struct mm_struct *mm, struct Page ** ptr_page, int in_tick
      /*LAB3 EXERCISE 2: YOUR CODE*/ 
      //(1)  unlink the  earliest arrival page in front of pra_list_head queue
      //(2)  set the addr of addr of this page to ptr_page
-     list_entry_t *le = list_prev(head);
+     list_entry_t *le = head->prev;
      assert(head != le);
      struct Page *page = le2page(le, pra_page_link);
      list_del(le);
