@@ -102,6 +102,18 @@ alloc_proc(void) {
      *       uint32_t flags;                             // Process flag
      *       char name[PROC_NAME_LEN + 1];               // Process name
      */
+    proc->state = PROC_UNINIT;
+    proc->pid = -1;
+    proc->runs = 0;
+    proc->kstack = 0;
+    proc->need_resched = 0;
+    proc->parent = NULL;
+    proc->mm = NULL;
+    memset(&(proc->context), 0, sizeof(struct context));
+    proc->tf = NULL;
+    proc->cr3 = boot_cr3;
+    proc->flags = 0;
+    memset(proc->name, 0, PROC_NAME_LEN);
     }
     return proc;
 }
@@ -296,6 +308,28 @@ do_fork(uint32_t clone_flags, uintptr_t stack, struct trapframe *tf) {
     //    5. insert proc_struct into hash_list && proc_list
     //    6. call wakeup_proc to make the new child process RUNNABLE
     //    7. set ret vaule using child proc's pid
+    proc = alloc_proc();
+    if (proc == NULL) goto fork_out;
+    proc->parent = current;
+    if (setup_kstack(proc) != 0) goto bad_fork_cleanup_proc;
+    //根据clone_flags复制或共享内存信息（本实验中无任何作用）
+    if (copy_mm(clone_flags, proc) != 0) goto bad_fork_cleanup_proc;
+    //开始复制线程，包括设置上下文context,trapframe等以保证线程可以正常运行
+    copy_thread(proc, stack, tf);
+    //关中断，保证下面的原子操作不被中断打断而导致线程在分配了pid后却未被及时加入到线程列表中
+    bool intr_flag;
+    local_intr_save(intr_flag);
+    // 原子操作
+    {
+    	proc->pid = get_pid();
+    	hash_proc(proc);
+    	list_add(&proc_list, &(proc->list_link)); //将子线程加到所有线程的列表中
+    	nr_process++; //线程数加1
+    }
+    local_intr_restore(intr_flag); //开中断
+    wakeup_proc(proc);
+    ret = proc->pid;
+
 fork_out:
     return ret;
 

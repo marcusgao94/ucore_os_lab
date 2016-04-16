@@ -137,6 +137,7 @@ default_free_pages(struct Page *base, size_t n) {
     base->property = n;
 
     // merge two free blocks
+    // check if address behind base + n is free. if so, merge them
     p = le2page(le, page_link);
     if (base + n == p) {
     	base->property += p->property;

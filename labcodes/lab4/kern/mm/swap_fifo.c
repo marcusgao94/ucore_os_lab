@@ -51,6 +51,9 @@ _fifo_map_swappable(struct mm_struct *mm, uintptr_t addr, struct Page *page, int
     //record the page access situlation
     /*LAB3 EXERCISE 2: YOUR CODE*/ 
     //(1)link the most recent arrival page at the back of the pra_list_head qeueue.
+    // 把新加入的页放到head的后面一个位置。
+    // 这个链表最早加入的页实际上是在链表的最尾端，最新加入的页在head后一位
+    list_add(head, entry);
     return 0;
 }
 /*
@@ -67,6 +70,13 @@ _fifo_swap_out_victim(struct mm_struct *mm, struct Page ** ptr_page, int in_tick
      /*LAB3 EXERCISE 2: YOUR CODE*/ 
      //(1)  unlink the  earliest arrival page in front of pra_list_head qeueue
      //(2)  set the addr of addr of this page to ptr_page
+     list_entry_t *le = head->prev;
+     assert(head != le);
+     struct Page *page = le2page(le, pra_page_link);
+     list_del(le);
+     assert(page != NULL);
+     // 把删掉的页的内容赋值给ptr_page
+     *ptr_page = page;
      return 0;
 }
 

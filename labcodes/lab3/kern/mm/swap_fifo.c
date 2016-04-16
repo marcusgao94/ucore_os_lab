@@ -52,7 +52,7 @@ _fifo_map_swappable(struct mm_struct *mm, uintptr_t addr, struct Page *page, int
     /*LAB3 EXERCISE 2: YOUR CODE*/ 
     //(1)link the most recent arrival page at the back of the pra_list_head qeueue.
     // 把新加入的页放到head的后面一个位置。
-    // 这个链表最早加入的页实际上是在链表的最尾端，最新加入的页在head处
+    // 这个链表最早加入的页实际上是在链表的最尾端，最新加入的页在head后一位
     list_add(head, entry);
     return 0;
 }
