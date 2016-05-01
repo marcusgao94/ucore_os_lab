@@ -493,7 +493,42 @@ do_pgfault(struct mm_struct *mm, uint32_t error_code, uintptr_t addr) {
         }
    }
 #endif
-   ret = 0;
+    ptep = get_pte(mm->pgdir, addr, 1);
+    if (ptep == NULL) {
+    	cprintf("get_pte in do_pgfault failed\n");
+    	goto failed;
+    }
+    // 如果物理地址不存在，就尝试分配一个物理地址
+    if (*ptep == 0) {
+    	struct Page *page = pgdir_alloc_page(mm->pgdir, addr, perm);
+    	if (page == NULL) {
+    		cprintf("pgdir_alloc_page in do_pgfault failed\n");
+    		goto failed;
+    	}
+    }
+    // 否则认为该页在硬盘上，要交换进内存
+    else {
+    	if (swap_init_ok) {
+    		struct Page *page = NULL;
+    		// 将该页交换进内存
+    		ret = swap_in(mm, addr, &page);
+    		if (ret != 0) {
+    			cprintf("swap_in in do_pgfault failed\n");
+    			goto failed;
+    		}
+    		// 更新PDT表，加入该地址
+    		page_insert(mm->pgdir, page, addr, perm);
+    		// 设置该页为可交换
+    		swap_map_swappable(mm, addr, page, 1);
+    		page->pra_vaddr = addr;
+    	}
+    	else {
+    		cprintf("no swap_init_ok but ptep is %x, failed\n", *ptep);
+    		goto failed;
+    	}
+    }
+
+    ret = 0;
 failed:
     return ret;
 }
